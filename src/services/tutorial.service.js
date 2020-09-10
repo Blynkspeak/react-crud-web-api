@@ -1,4 +1,5 @@
 import http from "../http-common";
+import api  from '../constants/Constants'
 
 class TutorialDataService {
   getAll() {
@@ -10,6 +11,10 @@ class TutorialDataService {
   }
 
   create(data) {
+    console.log(api);
+    console.log(api);
+    
+
     return http.post("/tutorials", data);
   }
 

@@ -14,7 +14,6 @@ import OTP from "../Login/OTP";
 import Events from "../Dashboard/Events";
 import MyEvents from "../Dashboard/MyEvents";
 
-
 export default class Navigation extends Component {
   constructor(props) {
     super(props);
@@ -22,6 +21,7 @@ export default class Navigation extends Component {
     	token :localStorage.getItem('token')
     };
   }
+
 
  logout =()=>{
  	console.log(this);

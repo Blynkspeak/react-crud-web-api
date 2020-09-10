@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import DataService from "../../services/DataService";
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import { ZoomMtg } from "@zoomus/websdk";
 
+const API_KEY = '730HNP0re0BIc426uWOi1ScTLwmk1WXFMz2m';
+// Add this, never use it client side in production
+const API_SECRET = 'mq1MHPEjaaq72OjM2uAY4IZPTew7ns9xP10m';
 export default class MyEvents extends Component {
   constructor(props) {
     super(props);
@@ -13,10 +17,15 @@ export default class MyEvents extends Component {
       submitted: false,
       list :[]
     };
+    document.body.style.overflow ="auto";
+    document.getElementById('zmmtg-root').style.display = "none";
 
   }
   componentDidMount(){
-    this.EventList();
+        ZoomMtg.setZoomJSLib("https://source.zoom.us/1.8.0/lib", "/av");
+        ZoomMtg.preLoadWasm();
+        ZoomMtg.prepareJssdk();
+        this.EventList();
   }
 
   onChangePhoneNumber = (e) => {
@@ -28,16 +37,26 @@ export default class MyEvents extends Component {
 
 
 
-startEvent= async(item) =>{
-//write api call and join event function here
+  StartEvent=(item)=>{
+    //write api call and join event function here
+	alert(item.eventid);
   var body = {
   eventid : item.eventid
   };
 
   DataService.startEvent(body)
       .then(response => {
-  alert(JSON.stringify(response));
+       alert(JSON.stringify(response));
+
   if(response.status==="success"){
+    var data = {
+      meetingNumber : parseInt(response.meetingdata.id),
+      password : response.meetingdata.encrypted_password,
+      //password : response.meetingdata.password,
+	  //password :'VVpwMGQxaXF1eWttK1Q5bVlqdlFiQT09',
+	  email: response.meetingdata.host_email
+    }
+    this.launchMeeting(data);
     //startmeet(response.meetingdata.id.toString(), response.meetingdata.password);
   }
   else{
@@ -45,6 +64,52 @@ startEvent= async(item) =>{
   }
   });
 }
+
+
+  launchMeeting = (data) => {
+		console.log(data);
+        ZoomMtg.generateSignature({
+            meetingNumber: data.meetingNumber,
+            apiKey: API_KEY,
+            apiSecret: API_SECRET,
+            role: 1,
+            success(res) {
+                console.log('signature', res.result);
+                ZoomMtg.init({
+                    leaveUrl: 'http://www.zoom.us',
+                    success() {
+                        ZoomMtg.join(
+                            {
+                                meetingNumber:data.meetingNumber,
+                                userName: 'test',
+                                signature: res.result,
+                                apiKey: API_KEY,
+                                userEmail: data.email,
+                                passWord: data.password,
+                                success() {
+									    document.getElementById('zmmtg-root').style.display = "block";
+
+									console.log(API_KEY);
+									console.log(data);
+                                    console.log('join meeting success');
+                                },
+                                error(res) {
+																		console.log(API_KEY);
+									console.log(data);
+                                    console.log(res);
+                                }
+                            }
+                        );
+                    },
+                    error(res) {
+                        console.log(res);
+                    }
+                });
+            }
+        });
+    }
+
+
 
 
   EventList = () => {
@@ -86,18 +151,9 @@ else if(response.status === "failure"){
   render() {
     console.log(this.state.list);
     return (
-         <ul>
+         <div>
       {this.state.list.map(item => (
-      <ListItem key={item.eventid} item={item} />
-          ))}
-        </ul>
-    );
-  }
-}
-
-const ListItem = ({ item }) => (
-  <li>
-  <Card >
+	    <Card key={item.eventid}>
   <div className="imageDiv">
   <Card.Img variant="top" style={{ width: '100px', height :'100px',borderRadius:'50%'}} src={item.photo} />
   </div>
@@ -110,13 +166,17 @@ const ListItem = ({ item }) => (
     <Card.Text>
       {item.description}  </Card.Text>
      {item.eventstatus === 'live'?
-    <Button  style={{backgroundColor:'green'}} >Live</Button>:null}  
+    <Button item="{item}" style={{backgroundColor:'blue'}} onClick={()=>this.StartEvent(item)}>Start</Button>:null}
     {item.eventstatus === 'closed'?
     <Button  style={{backgroundColor:'red'}} >Closed</Button>:null}  
     {item.eventstatus === 'pending'?
-    <Button style={{backgroundColor:'blue'}} onClick={() => this.startEvent(item)}>Start</Button>:null}
+    <Button item="{item}" style={{backgroundColor:'blue'}} onClick={()=>this.StartEvent(item)}>Start</Button>:null}
     
   </Card.Body>
 </Card>
-  </li>
-);
+	  
+          ))}
+        </div>
+    );
+  }
+}

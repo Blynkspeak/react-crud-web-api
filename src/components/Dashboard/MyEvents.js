@@ -6,7 +6,7 @@ import Card from 'react-bootstrap/Card';
 
 import { ZoomMtg } from "@zoomus/websdk";
 //import Navigation from "../Navigation/Navigation";
-import Loader from '../Helper/Loader'
+import Loader from '../Helper/Loader';
 
 const API_KEY = 'xp2f-ZkURViTizRyvaJJEA';
 // Add this, never use it client side in production

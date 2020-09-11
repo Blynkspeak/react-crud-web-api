@@ -28,10 +28,10 @@ export default class Events extends Component {
 
   }
   componentDidMount(){
+        this.EventList();
         ZoomMtg.setZoomJSLib("https://source.zoom.us/1.8.0/lib", "/av");
         ZoomMtg.preLoadWasm();
         ZoomMtg.prepareJssdk();
-        this.EventList();
   }
 
   onChangePhoneNumber = (e) => {

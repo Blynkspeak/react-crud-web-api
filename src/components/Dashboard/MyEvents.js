@@ -6,6 +6,7 @@ import Card from 'react-bootstrap/Card';
 
 import { ZoomMtg } from "@zoomus/websdk";
 //import Navigation from "../Navigation/Navigation";
+import Loader from '../Helper/Loader'
 
 const API_KEY = 'xp2f-ZkURViTizRyvaJJEA';
 // Add this, never use it client side in production
@@ -144,7 +145,8 @@ export default class MyEvents extends Component {
 }
 else if(response.status === "failure"){
   localStorage.clear();
-      this.props.history.push('/login');
+      //this.props.history.push('/login');
+      window.location ="/login";
 
 }
       }
@@ -166,6 +168,7 @@ else if(response.status === "failure"){
     console.log(this.state.list);
     return (
        <div>
+         <Loader item={this.state.loading}/>
       {this.state.list.map(item => (
 	    <Card style={{    background: '#eaeaea', margin: '10px'}} key={item.eventid}>
   <div className="imageDiv">

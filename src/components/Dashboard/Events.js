@@ -2,11 +2,15 @@ import React, { Component } from "react";
 import DataService from "../../services/DataService";
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import { ZoomMtg } from "@zoomus/websdk";
+//import Navigation from "../Navigation/Navigation";
+import { subscribeUser } from '../../subscription';
 
-const API_KEY = 'ZINaR7MpQxKqrj27uOlWgQ';
+import { ZoomMtg } from "@zoomus/websdk";
+import Loader from '../Helper/Loader'
+const API_KEY = 'xp2f-ZkURViTizRyvaJJEA';
 // Add this, never use it client side in production
-const API_SECRET = 'FXkp7KBRhgjm3NwgChAAi0MEl8ViZZPXVpK7';
+const API_SECRET = 'jW1ewcLp40wtb8rjYLvKhpDspx3YoxHPR1OE';
+
 export default class Events extends Component {
   constructor(props) {
     super(props);
@@ -15,10 +19,12 @@ export default class Events extends Component {
       PhoneNumber: 9535461483,
       published: false,
       submitted: false,
-      list :[]
+      list :[],
+      loading:false
     };
     document.body.style.overflow ="auto";
     document.getElementById('zmmtg-root').style.display = "none";
+      subscribeUser();
 
   }
   componentDidMount(){
@@ -37,13 +43,16 @@ export default class Events extends Component {
 
 
  Enrol= async(item) =>{
+  this.setState({loading: true});
   var body = {
     username: item.username,
     eventid : item.eventid
   };
     DataService.enrolEvent(body)
       .then(response => {
-    response = JSON.parse(window.atob(response));    
+    response = JSON.parse(window.atob(response)); 
+        this.setState({loading: false});
+   
     //console.log(response);
     if(response.status === "success"){
        alert("Enrolled successfully");
@@ -58,34 +67,39 @@ export default class Events extends Component {
 }
 Join= async(item) =>{
 //write api call and join event function here
+    this.setState({loading: true});
+
   var body = {
   eventid : item.eventid
   };
 
       DataService.joinEvent(body)
       .then(response => {
-          alert(JSON.stringify(response));
 
   if(response.status==="success"){
-    var data = {
-      meetingNumber : (response.meetingdata.id).toString(),
-      //password : response.meetingdata.join_url.split("pwd=")[1],
+   var data = {
+      meetingNumber : parseInt(response.meetingdata.id),
+      password : response.meetingdata.encrypted_password,
       //password : response.meetingdata.password,
-	  password :'VVpwMGQxaXF1eWttK1Q5bVlqdlFiQT09',
-	  email: response.meetingdata.host_email
+    //password :'VVpwMGQxaXF1eWttK1Q5bVlqdlFiQT09',
     }
+
     this.launchMeeting(data);
     //joinmeet(response.meetingdata.id.toString(), response.meetingdata.password);
   }
-  else{
-    alert("join failed");
+  else if(response.status==="error"){
+    const r = window.confirm('You are not Enrolled to this event. Do you want to enroll? ');
+    if (r ===true){
+      this.Enrol(item);
+    }
+
   }
   });
 }
 
 
   EventList = () => {
-
+    this.setState({loading: true});
     DataService.listEvents()
       .then(response => {
           response = JSON.parse(window.atob(response));    
@@ -99,10 +113,15 @@ Join= async(item) =>{
       array.push(element);
     }});
   this.setState({list:array});
+      this.setState({loading: false});
+
 }
 else if(response.status === "failure"){
+      this.setState({loading: false});
+
   localStorage.clear();
-      this.props.history.push('/login');
+      //this.props.history.push('/login');
+      window.location ="/login";
 
 }
       }
@@ -120,7 +139,7 @@ else if(response.status === "failure"){
   launchMeeting = (data) => {
 		console.log(data);
         ZoomMtg.generateSignature({
-            meetingNumber: 9696279797,//data.meetingNumber,
+            meetingNumber:data.meetingNumber,
             apiKey: API_KEY,
             apiSecret: API_SECRET,
             role: 1,
@@ -131,13 +150,14 @@ else if(response.status === "failure"){
                     success() {
                         ZoomMtg.join(
                             {
-                                meetingNumber: 9696279797,//data.meetingNumber,
+                                meetingNumber: data.meetingNumber,
                                 userName: 'test',
                                 signature: res.result,
                                 apiKey: API_KEY,
-                                userEmail: data.email,
                                 passWord: data.password,
                                 success() {
+                                      this.setState({loading: false});
+
 									    document.getElementById('zmmtg-root').style.display = "block";
 
 									console.log(API_KEY);
@@ -165,19 +185,19 @@ else if(response.status === "failure"){
     console.log(this.state.list);
     return (
          <div>
+         <Loader item={this.state.loading}/>
       {this.state.list.map(item => (
-  <Card key={item.eventid}>
+      <Card style={{    background: '#eaeaea', margin: '10px'}} key={item.eventid}>
   <div className="imageDiv">
-  <Card.Img variant="top" style={{ width: '100px', height :'100px',borderRadius:'50%'}} src={item.photo} />
+  <Card.Img variant="top" style={{ padding:'10px',width: '100px', height :'100px',borderRadius:'50%'}} src={item.photo} />
   </div>
   <Card.Body>
     <Card.Title>{item.title}</Card.Title>
-          <Card.Text>Event cost : Rs.{item.price}</Card.Text>
-    <Card.Text>Duration: {item.duration}.min</Card.Text>
-    <Card.Text>Time: {item.meetingtime}</Card.Text>
+          <span>Event cost : Rs.{item.price}</span><br/>
+    <span>Duration: {item.duration}.min</span><br/>
+    <span>Time: {item.meetingtime}</span><br/>
 
-    <Card.Text>
-      {item.description}  </Card.Text>
+    <span> {item.description}  </span><br/>
      {item.eventstatus === 'live'?
     <Button  style={{backgroundColor:'green'}} onClick={() => this.Join(item)}>JOIN</Button>:null}    
     {item.eventstatus === 'pending'?

@@ -11,6 +11,8 @@ export default class Login extends Component {
       published: false,
       submitted: false
     };
+        //document.getElementById('zmmtg-root').style.display = "none";
+
   }
 
   onChangeOTP = (e) => {
@@ -37,7 +39,8 @@ export default class Login extends Component {
             localStorage.setItem('token', response.token);
             localStorage.setItem('username', response.username);
             localStorage.setItem('email', response.email);
-            this.props.history.push('/events');
+            //this.props.history.push('/events');
+            window.location = "/events"
            
           } else if (response.status === 'falure') {
             if (response.Msg === 'password doesnot match') {
@@ -59,7 +62,9 @@ export default class Login extends Component {
             .then(response => { 
            response = JSON.parse(window.atob(response));
            if (response.status === 'success') {
-                this.props.history.push('/events');
+                //this.props.history.push('/events');
+               window.location = "/events"
+
 
           } else if (response.status === 'failure') {
             localStorage.clear();
@@ -91,9 +96,10 @@ export default class Login extends Component {
 
   render() {
     return (
-      <div className="submit-form">
+     <div style={{border:'2px soid pink',borderRadius : '3px',boxShadow:'rgba(0, 0, 0, 0.2) 0px 3px 1px -2px, rgba(0, 0, 0, 0.14) 0px 2px 2px 0px, rgba(0, 0, 0, 0.12) 0px 1px 5px 0px'}} className="submit-form">
         
-          <div>
+          <div style={{padding:'10px'}}>
+
             <div className="form-group">
               <label htmlFor="OTP">Enter OTP</label>
               <input

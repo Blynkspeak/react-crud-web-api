@@ -2,11 +2,19 @@ import React, { Component } from "react";
 import DataService from "../../services/DataService";
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
-import { ZoomMtg } from "@zoomus/websdk";
+    //<div style={{width:'100%',height:'100%',zIndex:'1'}}>Loading.....</div>
 
-const API_KEY = '730HNP0re0BIc426uWOi1ScTLwmk1WXFMz2m';
+import { ZoomMtg } from "@zoomus/websdk";
+//import Navigation from "../Navigation/Navigation";
+
+const API_KEY = 'xp2f-ZkURViTizRyvaJJEA';
 // Add this, never use it client side in production
-const API_SECRET = 'mq1MHPEjaaq72OjM2uAY4IZPTew7ns9xP10m';
+const API_SECRET = 'jW1ewcLp40wtb8rjYLvKhpDspx3YoxHPR1OE';
+
+//const API_KEY = 'ZINaR7MpQxKqrj27uOlWgQ';
+// Add this, never use it client side in production
+//const API_SECRET = 'FXkp7KBRhgjm3NwgChAAi0MEl8ViZZPXVpK7';
+
 export default class MyEvents extends Component {
   constructor(props) {
     super(props);
@@ -39,14 +47,14 @@ export default class MyEvents extends Component {
 
   StartEvent=(item)=>{
     //write api call and join event function here
-	alert(item.eventid);
+
+    this.setState({loading: true});
   var body = {
   eventid : item.eventid
   };
 
   DataService.startEvent(body)
       .then(response => {
-       alert(JSON.stringify(response));
 
   if(response.status==="success"){
     var data = {
@@ -76,8 +84,9 @@ export default class MyEvents extends Component {
             success(res) {
                 console.log('signature', res.result);
                 ZoomMtg.init({
-                    leaveUrl: 'http://www.zoom.us',
+                    leaveUrl: 'http://localhost:8081/myevents',
                     success() {
+                          this.setState({loading: false});
                         ZoomMtg.join(
                             {
                                 meetingNumber:data.meetingNumber,
@@ -113,10 +122,13 @@ export default class MyEvents extends Component {
 
 
   EventList = () => {
+    this.setState({loading: true});
 
     DataService.listEvents()
       .then(response => {
-          response = JSON.parse(window.atob(response));    
+          response = JSON.parse(window.atob(response)); 
+              this.setState({loading: false});
+   
         try{
   var array = [];
   if(response.status === "success"){
@@ -127,6 +139,8 @@ export default class MyEvents extends Component {
       array.push(element);
     }});
   this.setState({list:array});
+                this.setState({loading: false});
+
 }
 else if(response.status === "failure"){
   localStorage.clear();
@@ -151,22 +165,21 @@ else if(response.status === "failure"){
   render() {
     console.log(this.state.list);
     return (
-         <div>
+       <div>
       {this.state.list.map(item => (
-	    <Card key={item.eventid}>
+	    <Card style={{    background: '#eaeaea', margin: '10px'}} key={item.eventid}>
   <div className="imageDiv">
-  <Card.Img variant="top" style={{ width: '100px', height :'100px',borderRadius:'50%'}} src={item.photo} />
+  <Card.Img variant="top" style={{ padding:'10px',width: '100px', height :'100px',borderRadius:'50%'}} src={item.photo} />
   </div>
   <Card.Body>
     <Card.Title>{item.title}</Card.Title>
-          <Card.Text>Event cost : Rs.{item.price}</Card.Text>
-    <Card.Text>Duration: {item.duration}.min</Card.Text>
-    <Card.Text>Time: {item.meetingtime}</Card.Text>
+          <span>Event cost : Rs.{item.price}</span><br/>
+    <span>Duration: {item.duration}.min</span><br/>
+    <span>Time: {item.meetingtime}</span><br/>
 
-    <Card.Text>
-      {item.description}  </Card.Text>
+    <span> {item.description}  </span><br/>
      {item.eventstatus === 'live'?
-    <Button item="{item}" style={{backgroundColor:'blue'}} onClick={()=>this.StartEvent(item)}>Start</Button>:null}
+    <Button item="{item}" style={{backgroundColor:'blue'}} >Live</Button>:null}
     {item.eventstatus === 'closed'?
     <Button  style={{backgroundColor:'red'}} >Closed</Button>:null}  
     {item.eventstatus === 'pending'?

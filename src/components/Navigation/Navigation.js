@@ -20,23 +20,31 @@ export default class Navigation extends Component {
     this.state = {
     	token :localStorage.getItem('token')
     };
+        //document.getElementById('zmmtg-root').style.display = "none";
   }
+componentDidMount(){
+	  this.setState({
+	  	token :localStorage.getItem('token')
+	  });
+	document.getElementById('zmmtg-root').style.display = "none";
+	//if(this.state.token){
+		//window.location = '/events'};
 
+}
 
  logout =()=>{
  	console.log(this);
  	localStorage.clear();
- 	this.props.history.push('/login');
+ 	//this.props.history.push('/login');
+ 	window.location = "/login";
  }
+
   
   render() {
   	if(!this.state.token){
     return (
-
-      <div><nav className="navbar navbar-expand navbar-dark bg-dark">
-          <a href="/login" className="navbar-brand">
-            Seetok
-          </a>
+      <div><nav style={{borderBottom :'1px solid red'}} className="navbar navbar-expand ">
+          <img style={{width:'100px'}} src="https://seetok-dev.web.app/assets/logo.png" alt="Seetok"/>
           <div className="navbar-nav mr-auto">
            <li className="nav-item">
               <Link to={"/login"} className="nav-link">
@@ -56,10 +64,9 @@ export default class Navigation extends Component {
     );
 	}else{
 		return (
-		      <div><nav className="navbar navbar-expand navbar-dark bg-dark">
-          <a href="/login" className="navbar-brand">
-            Seetok
-          </a>
+		      <div><nav style={{borderBottom :'1px solid pink'}} className="navbar navbar-expand ">
+                    <img style={{width:'100px'}} src="https://seetok-dev.web.app/assets/logo.png" alt="Seetok"/>
+
           <div className="navbar-nav mr-auto">
           <li className="nav-item">
               <Link to={"/events"} className="nav-link">
@@ -72,15 +79,16 @@ export default class Navigation extends Component {
               </Link>
             </li>
            <li className="nav-item">
-             <button onClick={this.logout} className="btn btn-success">
+             <span style={{backgroundColor:'pink',color:'white'}} onClick={this.logout} className="btn">
               Logout
-            </button>
+            </span>
             </li>
           </div>
         </nav>
         <div className="container mt-3">
           <Switch>
-            <Route path="/Events" component={Events} />
+            <Route exact path={["/", "/events"]} component={Events} />
+            <Route path="/events" component={Events} />
             <Route path="/myevents" component={MyEvents} />
 
           </Switch>

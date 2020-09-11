@@ -17,7 +17,7 @@ function urlBase64ToUint8Array(base64String) {
 function sendSubscription(subscription) {
   return fetch(`https://r7hvl6uiue.execute-api.ap-south-1.amazonaws.com/dev/notificationsubscription`, {
     method: 'POST',
-    body: JSON.stringify(subscription),
+    body: JSON.stringify({body: window.btoa(JSON.stringify(subscription))}),
     headers: {
       'Content-Type': 'application/json',
       'Authorization' : localStorage.getItem('token')

@@ -66,6 +66,8 @@ export default class MyEvents extends Component {
 	  email: response.meetingdata.host_email
     }
     this.launchMeeting(data);
+    this.setState({loading: false});
+
     //startmeet(response.meetingdata.id.toString(), response.meetingdata.password);
   }
   else{
@@ -87,7 +89,6 @@ export default class MyEvents extends Component {
                 ZoomMtg.init({
                     leaveUrl: 'http://localhost:8081/myevents',
                     success() {
-                          this.setState({loading: false});
                         ZoomMtg.join(
                             {
                                 meetingNumber:data.meetingNumber,

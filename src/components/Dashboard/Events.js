@@ -85,6 +85,8 @@ Join= async(item) =>{
     }
 
     this.launchMeeting(data);
+    this.setState({loading: false});
+
     //joinmeet(response.meetingdata.id.toString(), response.meetingdata.password);
   }
   else if(response.status==="error"){
@@ -156,7 +158,6 @@ else if(response.status === "failure"){
                                 apiKey: API_KEY,
                                 passWord: data.password,
                                 success() {
-                                      this.setState({loading: false});
 
 									    document.getElementById('zmmtg-root').style.display = "block";
 

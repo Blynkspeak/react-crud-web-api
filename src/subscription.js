@@ -1,4 +1,4 @@
-const convertedVapidKey = urlBase64ToUint8Array('BOG2QMIIsYx3pkmVJNDn13H4TDB-Dg5PEeOQAoUwdZg7vuI1prIQa12JzT8O8QpDlLu9GAuYXkL92SRkHv5dTJE')
+const convertedVapidKey = urlBase64ToUint8Array('BAAwuQ1mcJqAsDuxbsKgKoK6Kt2yI7xK_p3Izh8MiVmWNe4nS8lXy8caqdmxvm4ythra0pYRgqs2zqFUX5yjnb4')
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - base64String.length % 4) % 4)
@@ -15,8 +15,10 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 function sendSubscription(subscription) {
+  console.log(JSON.stringify(subscription));
   return fetch(`https://r7hvl6uiue.execute-api.ap-south-1.amazonaws.com/dev/notificationsubscription`, {
-    method: 'POST',
+    //return fetch("http:localhost:9000/notify", {
+      method: 'POST',
     body: JSON.stringify({body: window.btoa(JSON.stringify(subscription))}),
     headers: {
       'Content-Type': 'application/json',
@@ -60,3 +62,5 @@ export function subscribeUser() {
       })
   }
 }
+
+

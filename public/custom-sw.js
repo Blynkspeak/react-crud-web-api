@@ -1,12 +1,13 @@
 self.addEventListener('push', event => {
+  console.log(event);
 	console.log(event.data.json());
   const data = event.data.json()
   console.log('New notification', data)
   const options = {
-    body: data.body,
+    body: data.notification.body,
   }
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.notification.title, options)
   );
 })
 self.addEventListener('notificationclick', function(event) {  
@@ -18,10 +19,11 @@ self.addEventListener('notificationclick', function(event) {
   // This looks to see if the current is already open and  
   // focuses if it is  
   event.waitUntil(
-    clients.matchAll({  
+    self.clients.matchAll({  
       type: "window"  
     })
     .then(function(clientList) {  
+      console.log(clientList);
       for (var i = 0; i < clientList.length; i++) {  
         var client = clientList[i];  
         if (client.url == '/' && 'focus' in client)  
